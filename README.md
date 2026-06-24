@@ -102,6 +102,22 @@ This opens a browser app with three tabs:
 The app is a thin front-end (`app.py`) over the same `cryptomind` modules — none
 of the assessed core logic changes.
 
+#### Deploying the web app (Streamlit Community Cloud)
+
+Streamlit needs a persistent server, so it deploys on
+[Streamlit Community Cloud](https://share.streamlit.io) (free) — **not** on
+serverless hosts like Vercel.
+
+1. Push this repo to GitHub.
+2. On share.streamlit.io: **Create app** → select the repo → branch `main` →
+   main file `app.py`.
+3. **No API key is required** — the app runs on the rule-based engine by default.
+   (Only add `ANTHROPIC_API_KEY` in *Secrets* if you want to use the Claude engine.)
+4. **Set the exchange** so live data works from the cloud. Binance is geo-blocked
+   on most cloud hosts, so add an environment variable / secret:
+   `CRYPTOMIND_EXCHANGE = "kraken"` (or `coinbase`). Locally you can leave it
+   unset to keep using Binance.
+
 ### Option B — Command line
 
 ### 1. Seed the memory with real historical decisions (do this first)

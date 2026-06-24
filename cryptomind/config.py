@@ -15,7 +15,11 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "cryptomind.db"
 
 # --- Market data -------------------------------------------------------------
-EXCHANGE = "binance"                       # public data, no API key required
+# Public data, no API key required. Configurable via the CRYPTOMIND_EXCHANGE env
+# var because some exchanges (notably Binance) are geo-blocked from cloud hosts.
+# Locally "binance" works; when deploying (e.g. Streamlit Cloud) set
+# CRYPTOMIND_EXCHANGE=kraken (or coinbase) so the data layer keeps working.
+EXCHANGE = os.environ.get("CRYPTOMIND_EXCHANGE", "binance")
 DEFAULT_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT"]
 DEFAULT_TIMEFRAME = "1h"                    # candle size used everywhere
 
