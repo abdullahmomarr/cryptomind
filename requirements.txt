@@ -1,0 +1,16 @@
+# CryptoMind prototype dependencies
+#
+# Kept deliberately small for a feasibility prototype.
+#   ccxt      -> live + historical OHLCV from public exchange endpoints (no API key)
+#   anthropic -> Claude LLM agent (the live reasoning layer)
+#   pytest    -> unit tests for the memory functions
+#
+# Indicators (RSI, moving averages) and similarity maths are pure-Python on
+# purpose, so the testable "memory loop" logic has no heavy numeric dependency.
+
+ccxt>=4.2.0
+anthropic>=0.39.0
+pytest>=8.0.0
+
+# Web front-end for the interactive demo (optional; the CLI works without it).
+streamlit>=1.30.0
