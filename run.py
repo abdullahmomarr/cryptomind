@@ -45,7 +45,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_seed = sub.add_parser("seed", help="Backfill memory from real historical data.")
     p_seed.add_argument("--pairs", nargs="+", default=config.DEFAULT_PAIRS,
                         help="Trading pairs to seed (default: BTC/ETH/SOL).")
-    p_seed.add_argument("--engine", choices=["rule", "llm"], default="rule",
+    p_seed.add_argument("--engine", choices=["rule", "gemini", "claude", "llm"], default="rule",
                         help="Recommendation engine for seeding (default: rule, free/offline).")
     p_seed.add_argument("--timeframe", default=config.DEFAULT_TIMEFRAME,
                         help="Candle timeframe, e.g. 1h, 15m, 1d (default: 1h).")
@@ -59,8 +59,8 @@ def build_parser() -> argparse.ArgumentParser:
     # --- live ----------------------------------------------------------------
     p_live = sub.add_parser("live", help="Run one full live decision loop for a pair.")
     p_live.add_argument("--pair", default="BTC/USDT", help="Trading pair (default: BTC/USDT).")
-    p_live.add_argument("--engine", choices=["rule", "llm"], default="llm",
-                        help="Reasoning engine (default: llm = Claude).")
+    p_live.add_argument("--engine", choices=["rule", "gemini", "claude", "llm"], default="rule",
+                        help="Reasoning engine (default: rule; 'gemini' = free LLM, 'claude' = paid).")
 
     # --- verify --------------------------------------------------------------
     p_verify = sub.add_parser("verify", help="Grade pending live recommendations.")

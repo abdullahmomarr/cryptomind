@@ -28,8 +28,9 @@ def get_market() -> MarketData:
     return MarketData()
 
 
-def key_available() -> bool:
-    return bool(config.get_anthropic_key())
+def llm_key_available() -> bool:
+    """True if either supported LLM backend has a key configured."""
+    return bool(config.get_gemini_key() or config.get_anthropic_key())
 
 
 # --- Header -----------------------------------------------------------------
@@ -47,16 +48,19 @@ with st.sidebar:
 
     engine_label = st.radio(
         "Reasoning engine",
-        ["Rule-based (free, offline)", "Claude LLM (needs API key)"],
+        ["Rule-based (free, offline)", "Gemini LLM (free API key)"],
         index=0,
-        help="The rule-based engine needs no API key. Claude uses ANTHROPIC_API_KEY.",
+        help="Rule-based needs no key. Gemini uses GEMINI_API_KEY (free at aistudio.google.com).",
     )
-    engine = "llm" if engine_label.startswith("Claude") else "rule"
+    engine = "llm" if engine_label.startswith("Gemini") else "rule"
 
-    if engine == "llm" and not key_available():
-        st.warning("ANTHROPIC_API_KEY not set — Claude calls will fail. Use the rule-based engine, or set the key and restart.")
+    if engine == "llm" and not llm_key_available():
+        st.warning(
+            "No GEMINI_API_KEY set — LLM calls will fail. Get a free key at "
+            "aistudio.google.com and add it in Secrets, or use the rule-based engine."
+        )
     else:
-        st.success(f"Engine ready: {'Claude LLM' if engine == 'llm' else 'Rule-based'}")
+        st.success(f"Engine ready: {'Gemini LLM' if engine == 'llm' else 'Rule-based'}")
 
     st.divider()
     stats = memory.connect()
@@ -156,12 +160,15 @@ with tab_seed:
     limit = sc3.slider("Decisions per pair", 10, 100, 60)
     seed_engine_label = st.radio(
         "Seeding engine",
-        ["Rule-based (fast, free)", "Claude LLM (slow, costs credits)"],
+        ["Rule-based (fast, free)", "Gemini LLM (slower, one call per decision)"],
         index=0, horizontal=True,
     )
-    seed_engine = "llm" if seed_engine_label.startswith("Claude") else "rule"
+    seed_engine = "llm" if seed_engine_label.startswith("Gemini") else "rule"
     if seed_engine == "llm":
-        st.warning(f"This will make up to ~{limit * len(seed_pairs)} real Claude API calls.")
+        st.warning(
+            f"This makes up to ~{limit * len(seed_pairs)} Gemini API calls and is slow. "
+            f"Gemini's free tier is rate-limited, so rule-based is recommended for seeding."
+        )
 
     if st.button("🌱 Seed memory now", type="primary", use_container_width=True):
         if not seed_pairs:
