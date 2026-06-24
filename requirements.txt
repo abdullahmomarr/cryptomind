@@ -9,7 +9,8 @@
 # purpose, so the testable "memory loop" logic has no heavy numeric dependency.
 
 ccxt>=4.2.0
-anthropic>=0.39.0
+anthropic>=0.39.0       # Claude backend (optional, paid)
+openai>=1.30.0          # Gemini free-tier backend via its OpenAI-compatible API
 pytest>=8.0.0
 
 # Web front-end for the interactive demo (optional; the CLI works without it).

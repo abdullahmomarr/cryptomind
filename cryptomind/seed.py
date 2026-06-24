@@ -139,9 +139,9 @@ def run_seed(
         f"  Pairs={pairs}  timeframe={timeframe}  days≈{days}  "
         f"target≈{limit}/pair  verify-window={window_hours}h"
     )
-    if engine == "llm":
+    if engine != "rule":
         print(
-            "  ⚠ LLM engine: this makes one real Claude API call per decision "
+            f"  ⚠ LLM engine: this makes one API call per decision "
             f"(up to ~{limit * len(pairs)} calls). Use 'rule' for a fast, free seed."
         )
 

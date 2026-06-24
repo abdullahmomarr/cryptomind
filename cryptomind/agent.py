@@ -184,6 +184,68 @@ class LLMAgent(Agent):
 
 
 # ---------------------------------------------------------------------------
+# OpenAI-compatible agent (Gemini free tier, Groq, OpenRouter, local Ollama…)
+# ---------------------------------------------------------------------------
+class OpenAICompatibleAgent(Agent):
+    """Agent backed by any OpenAI-compatible chat endpoint.
+
+    Google Gemini exposes an OpenAI-compatible API, so we can reach its free
+    tier through the standard `openai` SDK just by pointing `base_url` at it.
+    The same class works unchanged with Groq, OpenRouter, or a local Ollama
+    server — this is the project's "swap the LLM" seam, and the free,
+    cloud-deployable alternative to the Claude backend.
+    """
+
+    name = "openai-compatible"
+
+    def __init__(self, *, base_url: str, api_key: str | None, model: str, label: str = "llm"):
+        from openai import OpenAI  # imported lazily so offline use needs no SDK
+
+        if not api_key:
+            raise RuntimeError(
+                f"No API key for the '{label}' engine. Set GEMINI_API_KEY "
+                f"(free at https://aistudio.google.com) or use the rule-based engine."
+            )
+        self._client = OpenAI(base_url=base_url, api_key=api_key)
+        self._model = model
+        self.name = label
+
+    @classmethod
+    def for_gemini(cls) -> "OpenAICompatibleAgent":
+        """Build an agent for Google Gemini's free OpenAI-compatible endpoint."""
+        return cls(
+            base_url=config.GEMINI_OPENAI_BASE_URL,
+            api_key=config.get_gemini_key(),
+            model=config.GEMINI_MODEL,
+            label="gemini",
+        )
+
+    def recommend(self, snapshot: MarketSnapshot, similar_past: list[dict]) -> Recommendation:
+        prompt = PROMPT_TEMPLATE.format(
+            pair=snapshot.pair,
+            snapshot=json.dumps(snapshot.to_dict(), indent=2),
+            history=_format_history_for_prompt(similar_past),
+        )
+        try:
+            resp = self._client.chat.completions.create(
+                model=self._model,
+                max_tokens=400,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw_text = resp.choices[0].message.content
+        except Exception as exc:
+            raise RuntimeError(f"{self.name} request failed: {exc}") from exc
+
+        data = _parse_json_response(raw_text)
+        return Recommendation(
+            action=data["action"],
+            confidence=data["confidence"],
+            predicted_direction=data.get("predicted_direction", ""),
+            reasoning=data.get("reasoning", ""),
+        )
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 def _format_history_for_prompt(similar_past: list[dict]) -> str:
@@ -223,10 +285,20 @@ def _parse_json_response(text: str) -> dict:
 
 
 def get_agent(engine: str) -> Agent:
-    """Factory: 'rule' -> RuleBasedAgent, 'llm' -> LLMAgent."""
+    """Factory mapping an engine name to a concrete Agent.
+
+    'rule'           -> RuleBasedAgent (no key, works everywhere)
+    'gemini'         -> Gemini via OpenAI-compatible endpoint (free key)
+    'claude'         -> Claude (Anthropic, paid key)
+    'llm'            -> auto: Gemini if its key is set, else Claude
+    """
     engine = engine.lower()
     if engine in ("rule", "rule-based", "rules"):
         return RuleBasedAgent()
-    if engine in ("llm", "claude", "anthropic"):
+    if engine in ("gemini", "google"):
+        return OpenAICompatibleAgent.for_gemini()
+    if engine in ("claude", "anthropic"):
         return LLMAgent()
-    raise ValueError(f"Unknown engine '{engine}', expected 'rule' or 'llm'")
+    if engine == "llm":  # convenience alias: prefer the free Gemini key if present
+        return OpenAICompatibleAgent.for_gemini() if config.get_gemini_key() else LLMAgent()
+    raise ValueError(f"Unknown engine '{engine}', expected 'rule', 'gemini', or 'claude'")

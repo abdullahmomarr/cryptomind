@@ -51,12 +51,27 @@ HOLD_BAND_PCT = 0.5
 CALIBRATION_PRIOR_STRENGTH = 2
 
 # --- Agent / LLM -------------------------------------------------------------
-# Current Sonnet model id. Swappable; see cryptomind/agent.py for the interface
-# that also allows pointing at a local Ollama model later.
+# The reasoning layer is swappable (see cryptomind/agent.py). Two LLM backends
+# are supported out of the box, plus the always-available rule-based engine:
+#   * Claude (Anthropic)            -> needs ANTHROPIC_API_KEY (paid)
+#   * Gemini via OpenAI-compatible  -> needs GEMINI_API_KEY (free tier)
+# The Gemini path uses an OpenAI-compatible client, so the same agent class also
+# works with Groq / OpenRouter / a local Ollama server by changing these values.
+
+# -- Claude (Anthropic) --
 CLAUDE_MODEL = "claude-sonnet-4-6"
 ANTHROPIC_API_KEY_ENV = "ANTHROPIC_API_KEY"
+
+# -- Gemini (Google AI Studio, free tier) via its OpenAI-compatible endpoint --
+GEMINI_OPENAI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 
 
 def get_anthropic_key() -> str | None:
     """Return the Anthropic API key from the environment, or None if unset."""
     return os.environ.get(ANTHROPIC_API_KEY_ENV)
+
+
+def get_gemini_key() -> str | None:
+    """Return the Google/Gemini API key from the environment, or None if unset."""
+    return os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
