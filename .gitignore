@@ -20,3 +20,8 @@ cryptomind.db
 .DS_Store
 .vscode/
 .idea/
+
+# NOTE: results/ and data/candles/ are deliberately NOT ignored. The cached
+# candles are the exact prices every reported number was computed from, and
+# results/ holds the metrics and figures the report cites — both need to be in
+# the repository for the evaluation to be reproducible by a marker.

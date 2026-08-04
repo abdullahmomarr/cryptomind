@@ -14,6 +14,14 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "cryptomind.db"
 
+# Downloaded candles are cached here so an evaluation run is reproducible: the
+# same command re-run next week replays the same prices, not whatever the market
+# has done since.
+CACHE_DIR = PROJECT_ROOT / "data" / "candles"
+
+# Evaluation output (metrics, per-decision CSVs, figures for the report).
+RESULTS_DIR = PROJECT_ROOT / "results"
+
 # --- Market data -------------------------------------------------------------
 # Public data, no API key required. Configurable via the CRYPTOMIND_EXCHANGE env
 # var because some exchanges (notably Binance) are geo-blocked from cloud hosts.
@@ -43,6 +51,12 @@ DEFAULT_WINDOW_HOURS = 4
 # HOLD is considered correct if the price stayed within +/- this band (percent).
 # BUY is correct if change > +band, SELL is correct if change < -band.
 HOLD_BAND_PCT = 0.5
+
+# --- Memory retrieval ---------------------------------------------------------
+# How many similar past decisions are retrieved to calibrate a new call. This is
+# a default, not a hard-coded constant: it is threaded through the loop and the
+# seeder so the evaluation can sweep it.
+RETRIEVAL_K = 3
 
 # --- Confidence calibration --------------------------------------------------
 # When blending the agent's raw confidence with its historical hit-rate, we

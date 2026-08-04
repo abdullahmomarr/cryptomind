@@ -15,3 +15,7 @@ pytest>=8.0.0
 
 # Web front-end for the interactive demo (optional; the CLI works without it).
 streamlit>=1.30.0
+
+# Figures for the evaluation chapter. Optional: `run.py evaluate` still produces
+# every number without it, and simply skips the plots.
+matplotlib>=3.8.0

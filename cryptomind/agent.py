@@ -47,6 +47,12 @@ class Agent(ABC):
 
     name: str = "agent"
 
+    # Whether `recommend` actually reads `similar_past`. The evaluation uses
+    # this to decide if a "no retrieval" ablation is meaningful: for a backend
+    # that ignores memory, disabling retrieval reproduces the same actions and
+    # the arm would be a duplicate column rather than a result.
+    uses_memory: bool = False
+
     @abstractmethod
     def recommend(
         self, snapshot: MarketSnapshot, similar_past: list[dict]
@@ -74,6 +80,7 @@ class RuleBasedAgent(Agent):
     """
 
     name = "rule-based"
+    uses_memory = False  # decides purely from the indicators; memory enters via calibration
 
     def recommend(self, snapshot: MarketSnapshot, similar_past: list[dict]) -> Recommendation:
         rsi = snapshot.rsi
@@ -145,6 +152,7 @@ class LLMAgent(Agent):
     """Claude-backed agent. Requires ANTHROPIC_API_KEY in the environment."""
 
     name = "claude-llm"
+    uses_memory = True  # retrieved outcomes go into the prompt
 
     def __init__(self, model: str = config.CLAUDE_MODEL, api_key: str | None = None):
         from anthropic import Anthropic  # imported lazily so offline use needs no SDK
@@ -197,6 +205,7 @@ class OpenAICompatibleAgent(Agent):
     """
 
     name = "openai-compatible"
+    uses_memory = True  # retrieved outcomes go into the prompt
 
     def __init__(self, *, base_url: str, api_key: str | None, model: str, label: str = "llm"):
         from openai import OpenAI  # imported lazily so offline use needs no SDK

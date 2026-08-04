@@ -42,6 +42,9 @@ def seed_pair(
     days: int = 30,
     limit: int = 60,
     window_hours: float = config.DEFAULT_WINDOW_HOURS,
+    k: int = config.RETRIEVAL_K,
+    prior_strength: int = config.CALIBRATION_PRIOR_STRENGTH,
+    band: float = config.HOLD_BAND_PCT,
 ) -> dict:
     """Backfill up to `limit` verified historical recommendations for one pair."""
     tf_hours = _timeframe_hours(timeframe)
@@ -83,9 +86,13 @@ def seed_pair(
         exit_ts = exit_candle[0] / 1000.0
 
         # Learn over history: retrieve earlier seeded decisions, calibrate on them.
-        similar = memory.retrieve_similar(conn, snap_dict, pair, k=3)
+        # `as_of` restricts retrieval to what was knowable at this point in the
+        # replay — decisions already taken, outcomes already graded.
+        similar = memory.retrieve_similar(conn, snap_dict, pair, k=k, as_of=decision_ts)
         rec = agent.recommend(snapshot, similar)
-        calibrated, _ = memory.calibrate_confidence(rec.confidence, similar)
+        calibrated, _ = memory.calibrate_confidence(
+            rec.confidence, similar, prior_strength=prior_strength
+        )
 
         rec_id = memory.log_recommendation(
             conn,
@@ -107,6 +114,8 @@ def seed_pair(
             exit_price=exit_price,
             action=rec.action,
             checked_at=exit_ts,
+            horizon_hours=window_hours,
+            band=band,
             notes=f"REAL-HISTORICAL: graded against known price {window_hours}h later",
         )
         seeded += 1
@@ -127,6 +136,10 @@ def run_seed(
     days: int = 30,
     limit: int = 60,
     window_hours: float = config.DEFAULT_WINDOW_HOURS,
+    k: int = config.RETRIEVAL_K,
+    prior_strength: int = config.CALIBRATION_PRIOR_STRENGTH,
+    band: float = config.HOLD_BAND_PCT,
+    reset: bool = False,
     db_path=config.DB_PATH,
 ) -> dict:
     """Seed history for several pairs and print a demo-friendly summary.
@@ -149,6 +162,19 @@ def run_seed(
     agent = get_agent(engine)
     conn = memory.connect(db_path)
 
+    # Seeding is not idempotent: without this, a second run would store every
+    # historical decision twice and inflate the sample count that calibration
+    # weights itself by.
+    existing = memory.accuracy_stats(conn)["graded"]
+    if reset:
+        removed = memory.reset(conn)
+        print(f"  Reset memory: removed {removed} stored recommendation(s).")
+    elif existing:
+        print(
+            f"  ⚠ Memory already holds {existing} graded decision(s). Seeding again "
+            f"will ADD to them, not replace them — pass --reset for a clean run."
+        )
+
     total = 0
     per_pair = []
     for pair in pairs:
@@ -156,6 +182,7 @@ def run_seed(
             result = seed_pair(
                 conn, pair, agent, market,
                 timeframe=timeframe, days=days, limit=limit, window_hours=window_hours,
+                k=k, prior_strength=prior_strength, band=band,
             )
             total += result["seeded"]
             per_pair.append(result)

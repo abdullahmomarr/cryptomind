@@ -12,8 +12,11 @@ these snapshots (we store them, and we measure similarity between them).
 
 from __future__ import annotations
 
+import bisect
+import json
 from dataclasses import dataclass
-from typing import Sequence
+from pathlib import Path
+from typing import Callable, Sequence
 
 from . import config
 
@@ -186,9 +189,84 @@ class MarketData:
         except Exception as exc:
             raise RuntimeError(f"Failed to fetch price for {pair}: {exc}") from exc
 
+    def price_at(self, pair: str, at_unix_seconds: float, timeframe: str = "1m") -> float:
+        """Return the traded price at (or immediately after) a past moment.
+
+        This is what `memory.verify_outcomes` grades against, so that a decision
+        is always judged on the price its verification window actually points
+        at, no matter how late the verification sweep runs. If the moment is
+        still in the future we fall back to the current price, which is the best
+        estimate available and only happens within one candle of the boundary.
+        """
+        since_ms = int(at_unix_seconds * 1000)
+        candles = self.fetch_ohlcv(pair, timeframe=timeframe, limit=2, since_ms=since_ms)
+        if not candles:
+            # Nothing at/after that point yet -> the window has only just closed.
+            return self.current_price(pair)
+        return float(candles[0][4])
+
     def latest_snapshot(
         self, pair: str, timeframe: str = config.DEFAULT_TIMEFRAME
     ) -> MarketSnapshot:
         """Fetch recent candles and compute the current market snapshot."""
         candles = self.fetch_ohlcv(pair, timeframe=timeframe, limit=config.MIN_CANDLES + 50)
         return build_snapshot(pair, candles)
+
+
+# ---------------------------------------------------------------------------
+# Reproducible candle cache (for evaluation)
+# ---------------------------------------------------------------------------
+def _cache_path(pair: str, timeframe: str, limit: int, since_ms: int | None, cache_dir: Path) -> Path:
+    """Deterministic filename for one (pair, timeframe, span) request."""
+    safe_pair = pair.replace("/", "-")
+    stamp = "latest" if since_ms is None else str(since_ms)
+    return Path(cache_dir) / f"{config.EXCHANGE}_{safe_pair}_{timeframe}_{limit}_{stamp}.json"
+
+
+def load_candles(
+    pair: str,
+    *,
+    timeframe: str = config.DEFAULT_TIMEFRAME,
+    limit: int = 500,
+    since_ms: int | None = None,
+    cache_dir: Path = config.CACHE_DIR,
+    refresh: bool = False,
+    market: "MarketData | None" = None,
+) -> list[Candle]:
+    """Fetch candles, caching them on disk so evaluation runs are reproducible.
+
+    An evaluation that re-downloads "the last 30 days" every time it runs cannot
+    be reproduced — not by a marker, and not by us next week. Caching the exact
+    candles a result was computed from fixes that, and lets the whole test suite
+    and the sweeps run offline.
+    """
+    path = _cache_path(pair, timeframe, limit, since_ms, cache_dir)
+    if path.exists() and not refresh:
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    market = market or MarketData()
+    candles = market.fetch_ohlcv(pair, timeframe=timeframe, limit=limit, since_ms=since_ms)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(candles), encoding="utf-8")
+    return candles
+
+
+def candle_price_provider(candles: Sequence[Candle]) -> "Callable[[str, float], float]":
+    """Build a price provider that reads a fixed candle series.
+
+    Lets `memory.verify_outcomes` be exercised against historical data — and in
+    tests — with exactly the same code path it uses against the live exchange.
+    Returns the close of the first candle at or after the requested time.
+    """
+    ordered = sorted(candles, key=lambda c: c[0])
+    times = [c[0] for c in ordered]
+
+    def provider(pair: str, at_unix_seconds: float) -> float:
+        idx = bisect.bisect_left(times, int(at_unix_seconds * 1000))
+        if idx >= len(ordered):
+            raise RuntimeError(
+                f"No candle at or after {at_unix_seconds} for {pair} in the loaded series"
+            )
+        return float(ordered[idx][4])
+
+    return provider

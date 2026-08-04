@@ -1,0 +1,1175 @@
+{
+  "params": {
+    "engine": "rule",
+    "timeframe": "1h",
+    "days": 40,
+    "window_hours": 4,
+    "k": 3,
+    "prior_strength": 2,
+    "band": 0.5,
+    "train_frac": 0.5,
+    "n_bins": 10,
+    "seed": 0,
+    "max_decisions": 0,
+    "similarity_fields": [
+      "rsi",
+      "ma_gap_pct"
+    ],
+    "label": "bear-2025q1"
+  },
+  "pairs": [
+    "BTC/USDT"
+  ],
+  "per_pair": [
+    {
+      "pair": "BTC/USDT",
+      "n_total_decisions": 952,
+      "n_train": 476,
+      "n_test": 476,
+      "test_period_start": 1737561600.0,
+      "test_period_end": 1739271600.0,
+      "buy_and_hold_return_pct": -6.4578691946667,
+      "arms": {
+        "memory+calibration": {
+          "n": 476,
+          "accuracy_pct": 23.52941176470588,
+          "brier": 0.22565672268907563,
+          "ece_pct": 17.59663865546219,
+          "auc": 0.49475078492935637,
+          "brier_decomposition": {
+            "reliability": 0.04997427863557716,
+            "resolution": 0.003064312608748031,
+            "uncertainty": 0.17993079584775085,
+            "base_rate": 0.23529411764705882
+          },
+          "mean_confidence": 36.785714285714285,
+          "cumulative_return_pct": -25.08207182074198,
+          "mean_signed_return_pct": -0.054969304710462644,
+          "action_counts": {
+            "BUY": 202,
+            "SELL": 243,
+            "HOLD": 31
+          },
+          "reliability": [
+            {
+              "lower": 0.0,
+              "upper": 10.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 10.0,
+              "upper": 20.0,
+              "count": 96,
+              "mean_confidence": 17.708333333333332,
+              "accuracy": 25.0
+            },
+            {
+              "lower": 20.0,
+              "upper": 30.0,
+              "count": 104,
+              "mean_confidence": 22.759615384615383,
+              "accuracy": 25.961538461538463
+            },
+            {
+              "lower": 30.0,
+              "upper": 40.0,
+              "count": 85,
+              "mean_confidence": 36.529411764705884,
+              "accuracy": 22.35294117647059
+            },
+            {
+              "lower": 40.0,
+              "upper": 50.0,
+              "count": 88,
+              "mean_confidence": 43.01136363636363,
+              "accuracy": 15.909090909090908
+            },
+            {
+              "lower": 50.0,
+              "upper": 60.0,
+              "count": 49,
+              "mean_confidence": 56.30612244897959,
+              "accuracy": 26.53061224489796
+            },
+            {
+              "lower": 60.0,
+              "upper": 70.0,
+              "count": 25,
+              "mean_confidence": 62.64,
+              "accuracy": 32.0
+            },
+            {
+              "lower": 70.0,
+              "upper": 80.0,
+              "count": 17,
+              "mean_confidence": 72.3529411764706,
+              "accuracy": 11.76470588235294
+            },
+            {
+              "lower": 80.0,
+              "upper": 90.0,
+              "count": 12,
+              "mean_confidence": 83.16666666666667,
+              "accuracy": 41.66666666666667
+            },
+            {
+              "lower": 90.0,
+              "upper": 100.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            }
+          ]
+        },
+        "memory_raw_confidence": {
+          "n": 476,
+          "accuracy_pct": 23.52941176470588,
+          "brier": 0.2512600840336134,
+          "ece_pct": 26.546218487394956,
+          "auc": 0.5365973312401884,
+          "brier_decomposition": {
+            "reliability": 0.07250505860560573,
+            "resolution": 0.0008192241544002527,
+            "uncertainty": 0.17993079584775085,
+            "base_rate": 0.23529411764705882
+          },
+          "mean_confidence": 50.075630252100844,
+          "cumulative_return_pct": -25.08207182074198,
+          "mean_signed_return_pct": -0.054969304710462644,
+          "action_counts": {
+            "BUY": 202,
+            "SELL": 243,
+            "HOLD": 31
+          },
+          "reliability": [
+            {
+              "lower": 0.0,
+              "upper": 10.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 10.0,
+              "upper": 20.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 20.0,
+              "upper": 30.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 30.0,
+              "upper": 40.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 40.0,
+              "upper": 50.0,
+              "count": 281,
+              "mean_confidence": 44.91814946619217,
+              "accuracy": 21.352313167259787
+            },
+            {
+              "lower": 50.0,
+              "upper": 60.0,
+              "count": 130,
+              "mean_confidence": 53.55384615384615,
+              "accuracy": 25.384615384615383
+            },
+            {
+              "lower": 60.0,
+              "upper": 70.0,
+              "count": 38,
+              "mean_confidence": 62.1578947368421,
+              "accuracy": 28.947368421052634
+            },
+            {
+              "lower": 70.0,
+              "upper": 80.0,
+              "count": 27,
+              "mean_confidence": 70.0,
+              "accuracy": 29.629629629629626
+            },
+            {
+              "lower": 80.0,
+              "upper": 90.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 90.0,
+              "upper": 100.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            }
+          ]
+        },
+        "no_memory": {
+          "skipped": "identical to memory_raw_confidence (this agent does not read memory)"
+        },
+        "always_buy": {
+          "n": 476,
+          "accuracy_pct": 22.899159663865547,
+          "brier": 0.1795379916672536,
+          "ece_pct": 5.462184873949578,
+          "auc": 0.5,
+          "brier_decomposition": {
+            "reliability": 0.0029835463597203586,
+            "resolution": 0.0,
+            "uncertainty": 0.17655444530753478,
+            "base_rate": 0.22899159663865545
+          },
+          "mean_confidence": 28.361344537815125,
+          "cumulative_return_pct": -24.327067696234817,
+          "mean_signed_return_pct": -0.05227535672255794,
+          "action_counts": {
+            "BUY": 476,
+            "SELL": 0,
+            "HOLD": 0
+          },
+          "reliability": [
+            {
+              "lower": 0.0,
+              "upper": 10.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 10.0,
+              "upper": 20.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 20.0,
+              "upper": 30.0,
+              "count": 476,
+              "mean_confidence": 28.361344537815125,
+              "accuracy": 22.899159663865547
+            },
+            {
+              "lower": 30.0,
+              "upper": 40.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 40.0,
+              "upper": 50.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 50.0,
+              "upper": 60.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 60.0,
+              "upper": 70.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 70.0,
+              "upper": 80.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 80.0,
+              "upper": 90.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 90.0,
+              "upper": 100.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            }
+          ]
+        },
+        "always_sell": {
+          "n": 476,
+          "accuracy_pct": 26.05042016806723,
+          "brier": 0.1936348068639212,
+          "ece_pct": 3.1512605042016837,
+          "auc": 0.5,
+          "brier_decomposition": {
+            "reliability": 0.0009930442765341448,
+            "resolution": 0.0,
+            "uncertainty": 0.1926417625873879,
+            "base_rate": 0.2605042016806723
+          },
+          "mean_confidence": 22.899159663865547,
+          "cumulative_return_pct": 24.470439356485365,
+          "mean_signed_return_pct": 0.05227535672255794,
+          "action_counts": {
+            "BUY": 0,
+            "SELL": 476,
+            "HOLD": 0
+          },
+          "reliability": [
+            {
+              "lower": 0.0,
+              "upper": 10.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 10.0,
+              "upper": 20.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 20.0,
+              "upper": 30.0,
+              "count": 476,
+              "mean_confidence": 22.899159663865547,
+              "accuracy": 26.05042016806723
+            },
+            {
+              "lower": 30.0,
+              "upper": 40.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 40.0,
+              "upper": 50.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 50.0,
+              "upper": 60.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 60.0,
+              "upper": 70.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 70.0,
+              "upper": 80.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 80.0,
+              "upper": 90.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 90.0,
+              "upper": 100.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            }
+          ]
+        },
+        "always_hold": {
+          "n": 476,
+          "accuracy_pct": 51.05042016806722,
+          "brier": 0.25042369889132216,
+          "ece_pct": 2.3109243697478945,
+          "auc": 0.5,
+          "brier_decomposition": {
+            "reliability": 0.0005340371442694713,
+            "resolution": 0.0,
+            "uncertainty": 0.24988966174705177,
+            "base_rate": 0.5105042016806722
+          },
+          "mean_confidence": 48.739495798319325,
+          "cumulative_return_pct": 0.0,
+          "mean_signed_return_pct": 0.0,
+          "action_counts": {
+            "BUY": 0,
+            "SELL": 0,
+            "HOLD": 476
+          },
+          "reliability": [
+            {
+              "lower": 0.0,
+              "upper": 10.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 10.0,
+              "upper": 20.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 20.0,
+              "upper": 30.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 30.0,
+              "upper": 40.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 40.0,
+              "upper": 50.0,
+              "count": 476,
+              "mean_confidence": 48.739495798319325,
+              "accuracy": 51.05042016806722
+            },
+            {
+              "lower": 50.0,
+              "upper": 60.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 60.0,
+              "upper": 70.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 70.0,
+              "upper": 80.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 80.0,
+              "upper": 90.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 90.0,
+              "upper": 100.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            }
+          ]
+        },
+        "random": {
+          "n": 476,
+          "accuracy_pct": 31.512605042016805,
+          "brier": 0.2158216227667531,
+          "ece_pct": 3.552713678800501e-15,
+          "auc": 0.5,
+          "brier_decomposition": {
+            "reliability": 0.0,
+            "resolution": 0.0,
+            "uncertainty": 0.21582162276675376,
+            "base_rate": 0.31512605042016806
+          },
+          "mean_confidence": 31.51260504201681,
+          "cumulative_return_pct": -36.47797801138832,
+          "mean_signed_return_pct": -0.09070153542490637,
+          "action_counts": {
+            "BUY": 167,
+            "SELL": 166,
+            "HOLD": 143
+          },
+          "reliability": [
+            {
+              "lower": 0.0,
+              "upper": 10.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 10.0,
+              "upper": 20.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 20.0,
+              "upper": 30.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 30.0,
+              "upper": 40.0,
+              "count": 476,
+              "mean_confidence": 31.51260504201681,
+              "accuracy": 31.512605042016805
+            },
+            {
+              "lower": 40.0,
+              "upper": 50.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 50.0,
+              "upper": 60.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 60.0,
+              "upper": 70.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 70.0,
+              "upper": 80.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 80.0,
+              "upper": 90.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            },
+            {
+              "lower": 90.0,
+              "upper": 100.0,
+              "count": 0,
+              "mean_confidence": null,
+              "accuracy": null
+            }
+          ]
+        }
+      },
+      "calibration_vs_raw_brier": {
+        "difference": -0.025603361344537806,
+        "ci_low": -0.04417415966386551,
+        "ci_high": -0.006691596638655456,
+        "significant": true,
+        "n_resamples": 2000
+      }
+    }
+  ],
+  "pooled": {
+    "arms": {
+      "memory+calibration": {
+        "n": 476,
+        "accuracy_pct": 23.52941176470588,
+        "brier": 0.22565672268907563,
+        "ece_pct": 17.59663865546219,
+        "auc": 0.49475078492935637,
+        "brier_decomposition": {
+          "reliability": 0.04997427863557716,
+          "resolution": 0.003064312608748031,
+          "uncertainty": 0.17993079584775085,
+          "base_rate": 0.23529411764705882
+        },
+        "mean_confidence": 36.785714285714285,
+        "cumulative_return_pct": -25.08207182074198,
+        "mean_signed_return_pct": -0.054969304710462644,
+        "action_counts": {
+          "BUY": 202,
+          "SELL": 243,
+          "HOLD": 31
+        },
+        "reliability": [
+          {
+            "lower": 0.0,
+            "upper": 10.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 10.0,
+            "upper": 20.0,
+            "count": 96,
+            "mean_confidence": 17.708333333333332,
+            "accuracy": 25.0
+          },
+          {
+            "lower": 20.0,
+            "upper": 30.0,
+            "count": 104,
+            "mean_confidence": 22.759615384615383,
+            "accuracy": 25.961538461538463
+          },
+          {
+            "lower": 30.0,
+            "upper": 40.0,
+            "count": 85,
+            "mean_confidence": 36.529411764705884,
+            "accuracy": 22.35294117647059
+          },
+          {
+            "lower": 40.0,
+            "upper": 50.0,
+            "count": 88,
+            "mean_confidence": 43.01136363636363,
+            "accuracy": 15.909090909090908
+          },
+          {
+            "lower": 50.0,
+            "upper": 60.0,
+            "count": 49,
+            "mean_confidence": 56.30612244897959,
+            "accuracy": 26.53061224489796
+          },
+          {
+            "lower": 60.0,
+            "upper": 70.0,
+            "count": 25,
+            "mean_confidence": 62.64,
+            "accuracy": 32.0
+          },
+          {
+            "lower": 70.0,
+            "upper": 80.0,
+            "count": 17,
+            "mean_confidence": 72.3529411764706,
+            "accuracy": 11.76470588235294
+          },
+          {
+            "lower": 80.0,
+            "upper": 90.0,
+            "count": 12,
+            "mean_confidence": 83.16666666666667,
+            "accuracy": 41.66666666666667
+          },
+          {
+            "lower": 90.0,
+            "upper": 100.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          }
+        ]
+      },
+      "memory_raw_confidence": {
+        "n": 476,
+        "accuracy_pct": 23.52941176470588,
+        "brier": 0.2512600840336134,
+        "ece_pct": 26.546218487394956,
+        "auc": 0.5365973312401884,
+        "brier_decomposition": {
+          "reliability": 0.07250505860560573,
+          "resolution": 0.0008192241544002527,
+          "uncertainty": 0.17993079584775085,
+          "base_rate": 0.23529411764705882
+        },
+        "mean_confidence": 50.075630252100844,
+        "cumulative_return_pct": -25.08207182074198,
+        "mean_signed_return_pct": -0.054969304710462644,
+        "action_counts": {
+          "BUY": 202,
+          "SELL": 243,
+          "HOLD": 31
+        },
+        "reliability": [
+          {
+            "lower": 0.0,
+            "upper": 10.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 10.0,
+            "upper": 20.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 20.0,
+            "upper": 30.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 30.0,
+            "upper": 40.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 40.0,
+            "upper": 50.0,
+            "count": 281,
+            "mean_confidence": 44.91814946619217,
+            "accuracy": 21.352313167259787
+          },
+          {
+            "lower": 50.0,
+            "upper": 60.0,
+            "count": 130,
+            "mean_confidence": 53.55384615384615,
+            "accuracy": 25.384615384615383
+          },
+          {
+            "lower": 60.0,
+            "upper": 70.0,
+            "count": 38,
+            "mean_confidence": 62.1578947368421,
+            "accuracy": 28.947368421052634
+          },
+          {
+            "lower": 70.0,
+            "upper": 80.0,
+            "count": 27,
+            "mean_confidence": 70.0,
+            "accuracy": 29.629629629629626
+          },
+          {
+            "lower": 80.0,
+            "upper": 90.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 90.0,
+            "upper": 100.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          }
+        ]
+      },
+      "always_buy": {
+        "n": 476,
+        "accuracy_pct": 22.899159663865547,
+        "brier": 0.1795379916672536,
+        "ece_pct": 5.462184873949578,
+        "auc": 0.5,
+        "brier_decomposition": {
+          "reliability": 0.0029835463597203586,
+          "resolution": 0.0,
+          "uncertainty": 0.17655444530753478,
+          "base_rate": 0.22899159663865545
+        },
+        "mean_confidence": 28.361344537815125,
+        "cumulative_return_pct": -24.327067696234817,
+        "mean_signed_return_pct": -0.05227535672255794,
+        "action_counts": {
+          "BUY": 476,
+          "SELL": 0,
+          "HOLD": 0
+        },
+        "reliability": [
+          {
+            "lower": 0.0,
+            "upper": 10.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 10.0,
+            "upper": 20.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 20.0,
+            "upper": 30.0,
+            "count": 476,
+            "mean_confidence": 28.361344537815125,
+            "accuracy": 22.899159663865547
+          },
+          {
+            "lower": 30.0,
+            "upper": 40.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 40.0,
+            "upper": 50.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 50.0,
+            "upper": 60.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 60.0,
+            "upper": 70.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 70.0,
+            "upper": 80.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 80.0,
+            "upper": 90.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 90.0,
+            "upper": 100.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          }
+        ]
+      },
+      "always_sell": {
+        "n": 476,
+        "accuracy_pct": 26.05042016806723,
+        "brier": 0.1936348068639212,
+        "ece_pct": 3.1512605042016837,
+        "auc": 0.5,
+        "brier_decomposition": {
+          "reliability": 0.0009930442765341448,
+          "resolution": 0.0,
+          "uncertainty": 0.1926417625873879,
+          "base_rate": 0.2605042016806723
+        },
+        "mean_confidence": 22.899159663865547,
+        "cumulative_return_pct": 24.470439356485365,
+        "mean_signed_return_pct": 0.05227535672255794,
+        "action_counts": {
+          "BUY": 0,
+          "SELL": 476,
+          "HOLD": 0
+        },
+        "reliability": [
+          {
+            "lower": 0.0,
+            "upper": 10.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 10.0,
+            "upper": 20.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 20.0,
+            "upper": 30.0,
+            "count": 476,
+            "mean_confidence": 22.899159663865547,
+            "accuracy": 26.05042016806723
+          },
+          {
+            "lower": 30.0,
+            "upper": 40.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 40.0,
+            "upper": 50.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 50.0,
+            "upper": 60.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 60.0,
+            "upper": 70.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 70.0,
+            "upper": 80.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 80.0,
+            "upper": 90.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 90.0,
+            "upper": 100.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          }
+        ]
+      },
+      "always_hold": {
+        "n": 476,
+        "accuracy_pct": 51.05042016806722,
+        "brier": 0.25042369889132216,
+        "ece_pct": 2.3109243697478945,
+        "auc": 0.5,
+        "brier_decomposition": {
+          "reliability": 0.0005340371442694713,
+          "resolution": 0.0,
+          "uncertainty": 0.24988966174705177,
+          "base_rate": 0.5105042016806722
+        },
+        "mean_confidence": 48.739495798319325,
+        "cumulative_return_pct": 0.0,
+        "mean_signed_return_pct": 0.0,
+        "action_counts": {
+          "BUY": 0,
+          "SELL": 0,
+          "HOLD": 476
+        },
+        "reliability": [
+          {
+            "lower": 0.0,
+            "upper": 10.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 10.0,
+            "upper": 20.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 20.0,
+            "upper": 30.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 30.0,
+            "upper": 40.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 40.0,
+            "upper": 50.0,
+            "count": 476,
+            "mean_confidence": 48.739495798319325,
+            "accuracy": 51.05042016806722
+          },
+          {
+            "lower": 50.0,
+            "upper": 60.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 60.0,
+            "upper": 70.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 70.0,
+            "upper": 80.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 80.0,
+            "upper": 90.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 90.0,
+            "upper": 100.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          }
+        ]
+      },
+      "random": {
+        "n": 476,
+        "accuracy_pct": 31.512605042016805,
+        "brier": 0.2158216227667531,
+        "ece_pct": 3.552713678800501e-15,
+        "auc": 0.5,
+        "brier_decomposition": {
+          "reliability": 0.0,
+          "resolution": 0.0,
+          "uncertainty": 0.21582162276675376,
+          "base_rate": 0.31512605042016806
+        },
+        "mean_confidence": 31.51260504201681,
+        "cumulative_return_pct": -36.47797801138832,
+        "mean_signed_return_pct": -0.09070153542490637,
+        "action_counts": {
+          "BUY": 167,
+          "SELL": 166,
+          "HOLD": 143
+        },
+        "reliability": [
+          {
+            "lower": 0.0,
+            "upper": 10.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 10.0,
+            "upper": 20.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 20.0,
+            "upper": 30.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 30.0,
+            "upper": 40.0,
+            "count": 476,
+            "mean_confidence": 31.51260504201681,
+            "accuracy": 31.512605042016805
+          },
+          {
+            "lower": 40.0,
+            "upper": 50.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 50.0,
+            "upper": 60.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 60.0,
+            "upper": 70.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 70.0,
+            "upper": 80.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 80.0,
+            "upper": 90.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "lower": 90.0,
+            "upper": 100.0,
+            "count": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          }
+        ]
+      }
+    },
+    "n_pairs": 1,
+    "calibration_vs_raw_brier": {
+      "difference": -0.025603361344537806,
+      "ci_low": -0.04417415966386551,
+      "ci_high": -0.006691596638655456,
+      "significant": true,
+      "n_resamples": 2000
+    },
+    "mean_buy_and_hold_return_pct": -6.4578691946667
+  }
+}

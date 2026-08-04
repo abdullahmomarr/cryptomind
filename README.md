@@ -46,8 +46,11 @@ confident new call is pulled back toward that reality.
 | `cryptomind/loop.py` | The full live decision loop with demo-friendly output. |
 | `cryptomind/seed.py` | Backfills history from **real historical** prices and verifies each decision against the known subsequent price. |
 | `cryptomind/display.py` | Terminal formatting for the demo. |
-| `run.py` | CLI: `seed`, `live`, `verify`. |
-| `tests/` | Unit tests for the memory functions. |
+| `cryptomind/metrics.py` | Calibration (Brier, ECE, reliability) and discrimination (AUC, Murphy decomposition) metrics, plus a paired bootstrap. |
+| `cryptomind/evaluate.py` | Walk-forward replay with a chronological hold-out, ablation arms, baselines and parameter sweeps. |
+| `cryptomind/report.py` | Scorecards, CSV/JSON output, and the report's figures. |
+| `run.py` | CLI: `seed`, `live`, `verify`, `evaluate`. |
+| `tests/` | Unit tests: indicators, memory functions, metrics, and the evaluation harness. |
 
 ---
 
@@ -168,6 +171,76 @@ pytest -v
 
 ---
 
+## Evaluation
+
+The claim CryptoMind rests on is not "it predicts the market" — it is **"it knows
+how much to trust itself"**. That is a claim about *calibration*, and accuracy
+cannot test it: an agent right 55% of the time while saying 90% every time is
+badly calibrated however respectable its accuracy looks.
+
+```bash
+python run.py evaluate                                    # the headline run
+python run.py evaluate --sweep k --values 1 3 5 10 20     # an ablation
+python run.py evaluate --since 2025-01-01 --label bear    # a specific regime
+```
+
+**Method.** Walk-forward replay over real cached candles with a *chronological*
+hold-out — no shuffling, because shuffling a time series lets the model learn
+from its own future. At every step the agent sees only candles up to that point
+and retrieves only decisions taken before it whose outcomes were already graded
+by then (`memory.retrieve_similar(..., as_of=...)`). The first half of the
+decisions exist only to build memory; **only the tail is scored**.
+
+**What is compared.** The full system, against its own ablations and against
+baselines, on the identical hold-out events:
+
+| Arm | What it isolates |
+|-----|------------------|
+| Memory + calibration | the full system |
+| Memory, raw confidence | *same actions*, uncalibrated — so any difference is calibration alone |
+| No memory | retrieval removed (meaningful only for an LLM backend; the rule agent ignores memory by design) |
+| Always BUY / SELL / HOLD, random | does the agent beat the dumbest possible strategy? |
+| Buy & hold | what the market did anyway |
+
+Each baseline states the confidence its *own training-split hit-rate* justifies.
+Handing them a flat 50% would make the agent's calibration look good for free.
+
+**Metrics.** Brier score and ECE for calibration; **AUC and Murphy resolution
+for discrimination**. Both are needed: a forecaster stating one constant
+confidence equal to its base rate is *perfectly calibrated* and scores a
+flattering Brier while being useless. Resolution catches it — a constant
+forecaster scores exactly 0. Differences are reported with a paired bootstrap
+interval rather than asserted from a single number.
+
+### Results (60 days, 1h candles, 3 pairs, 1428 hold-out decisions)
+
+| Arm | Acc% | Brier | ECE% | AUC | Resolution |
+|-----|------|-------|------|-----|------------|
+| **Memory + calibration** | 23.5 | **0.2113** | **14.1** | **0.546** | **0.0031** |
+| Memory, raw confidence | 23.5 | 0.2458 | 24.2 | 0.454 | 0.0012 |
+| Always BUY | 17.9 | 0.1551 | 9.1 | 0.527 | 0.0000 |
+| Always SELL | 20.2 | 0.1619 | 2.7 | 0.530 | 0.0006 |
+| Always HOLD | 62.0 | 0.2497 | 11.8 | 0.538 | 0.0002 |
+| Random | 32.7 | 0.2205 | 0.9 | 0.489 | 0.0000 |
+
+Two findings, and the second one matters as much as the first:
+
+1. **Calibration works.** Brier 0.2458 → 0.2113 (paired bootstrap −0.0344, 95%
+   CI [−0.0433, −0.0250] — significant), ECE 24.2% → 14.1%, and AUC moves from
+   0.454 (*worse than chance*) to 0.546. The actions are identical in both arms,
+   so this is attributable to the calibration step and nothing else.
+2. **The underlying decisions are poor.** Always-HOLD is right 62% of the time
+   and the agent 23.5%, because 62% of 4h moves fall inside the ±0.5% band while
+   the rule agent says HOLD on only 8% of calls. Calibration makes the agent
+   *honest* about its confidence; it does not make its decisions *good*. Those
+   are separate claims and the evaluation only supports the first.
+
+Outputs land in `results/<label>/`: `summary.json` (every metric), `events.csv`
+(one row per hold-out decision, so any figure can be recomputed independently),
+and `figures/` for the report.
+
+---
+
 ## Design notes (for the report)
 
 - **Swappable LLM:** every backend implements `Agent.recommend(snapshot, similar_past)`.
@@ -180,9 +253,18 @@ pytest -v
   history more as the number of similar graded samples grows
   (`weight = n / (n + prior)`). See `memory.calibrate_confidence`.
 - **Outcome grading:** BUY correct if price rose beyond a small band, SELL if it
-  fell beyond it, HOLD if it stayed within it. See `memory.grade_outcome`.
+  fell beyond it, HOLD if it stayed within it. See `memory.grade_outcome`. The
+  band is a parameter, and the evaluation shows how much it decides.
+- **Fixed grading horizon:** a decision is always judged on the price
+  `window_hours` after it was made, never on "the price whenever we got round to
+  verifying" — otherwise a call left ungraded for a week would be scored over a
+  week of price action and sit in the same table as one scored over four hours.
+- **No leakage:** every retrieval in an offline replay passes `as_of`, so the
+  agent sees only decisions already taken and outcomes already graded at the
+  moment being simulated.
 - **Honesty:** seeded data uses real exchange prices and is explicitly tagged so
   it is never mistaken for fabricated history.
 
-See the project's evaluation chapter for what's working, what's limited, and
-what would be improved next.
+Every tunable above (`k`, calibration prior, HOLD band, verification window,
+similarity fields) is a parameter rather than a constant, so the evaluation can
+ablate it — see `python run.py evaluate --sweep`.
