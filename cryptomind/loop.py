@@ -24,6 +24,8 @@ def analyze(
     db_path=config.DB_PATH,
     market: MarketData | None = None,
     agent: Agent | None = None,
+    k: int = config.RETRIEVAL_K,
+    prior_strength: int = config.CALIBRATION_PRIOR_STRENGTH,
 ) -> dict:
     """Run one full pass of the memory loop for `pair` WITHOUT printing.
 
@@ -40,13 +42,17 @@ def analyze(
         snap_dict = snapshot.to_dict()
 
         # 2. Retrieve similar past decisions ----------------------------------
-        similar = memory.retrieve_similar(conn, snap_dict, pair, k=3)
+        # No `as_of` here: this is a live call, so "everything in memory" and
+        # "everything knowable now" are the same set.
+        similar = memory.retrieve_similar(conn, snap_dict, pair, k=k)
 
         # 3 + 4. Agent produces a raw recommendation --------------------------
         rec = agent.recommend(snapshot, similar)
 
         # 5. Calibrate confidence from historical accuracy --------------------
-        calibrated, explanation = memory.calibrate_confidence(rec.confidence, similar)
+        calibrated, explanation = memory.calibrate_confidence(
+            rec.confidence, similar, prior_strength=prior_strength
+        )
 
         # 6. Log the (calibrated) recommendation ------------------------------
         rec_id = memory.log_recommendation(
@@ -128,10 +134,13 @@ def run_live(
 
 def run_verify(window_hours: float = config.DEFAULT_WINDOW_HOURS, *, db_path=config.DB_PATH) -> int:
     """Grade pending live recommendations older than the window against current prices."""
-    print(display.header(f"Verifying outcomes older than {window_hours}h against live prices"))
+    print(display.header(f"Verifying outcomes on the price {window_hours}h after each call"))
     market = MarketData()
     conn = memory.connect(db_path)
-    results = memory.verify_outcomes(conn, window_hours, market.current_price)
+    # `price_at`, not `current_price`: a call left ungraded for a week must
+    # still be judged on the price its window actually points at, or late
+    # verification would silently stretch the horizon it was graded over.
+    results = memory.verify_outcomes(conn, window_hours, market.price_at)
 
     if not results:
         print("  Nothing to verify yet (no recommendations are old enough).")
