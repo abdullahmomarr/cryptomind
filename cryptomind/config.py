@@ -80,6 +80,36 @@ ANTHROPIC_API_KEY_ENV = "ANTHROPIC_API_KEY"
 GEMINI_OPENAI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 
+# -- Groq (free tier) via its OpenAI-compatible endpoint --
+# Groq serves open-weight models at high speed with a usable free quota, which
+# makes it the practical backend for evaluating the LLM agent over hundreds of
+# historical decisions.
+GROQ_OPENAI_BASE_URL = "https://api.groq.com/openai/v1"
+GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+# -- OpenRouter (free tier) via its OpenAI-compatible endpoint --
+# OpenRouter fronts a rotating set of free models behind one OpenAI-compatible
+# endpoint. The default below was chosen by smoke-testing the free models on the
+# actual agent prompt: it returns clean JSON (no chain-of-thought leakage that
+# breaks the parser) in a few seconds per call, which is what a walk-forward
+# evaluation over hundreds of decisions needs. Override with OPENROUTER_MODEL.
+OPENROUTER_OPENAI_BASE_URL = "https://openrouter.ai/api/v1"
+OPENROUTER_MODEL = os.environ.get(
+    "OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free"
+)
+
+# --- LLM call handling --------------------------------------------------------
+# Free tiers rate limit aggressively, and an evaluation makes hundreds of calls
+# in a row, so a single 429 must not abort a run that has been going for twenty
+# minutes.
+LLM_MAX_RETRIES = 5
+LLM_BACKOFF_SECONDS = 2.0
+
+# Every LLM response is cached on disk, keyed by a hash of the exact prompt and
+# model. Two reasons: an evaluation costs its API calls only once, and a run
+# becomes reproducible, which an LLM evaluation otherwise is not.
+LLM_CACHE_DIR = PROJECT_ROOT / "data" / "llm_cache"
+
 
 def get_anthropic_key() -> str | None:
     """Return the Anthropic API key from the environment, or None if unset."""
@@ -89,3 +119,13 @@ def get_anthropic_key() -> str | None:
 def get_gemini_key() -> str | None:
     """Return the Google/Gemini API key from the environment, or None if unset."""
     return os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+
+
+def get_groq_key() -> str | None:
+    """Return the Groq API key from the environment, or None if unset."""
+    return os.environ.get("GROQ_API_KEY")
+
+
+def get_openrouter_key() -> str | None:
+    """Return the OpenRouter API key from the environment, or None if unset."""
+    return os.environ.get("OPENROUTER_API_KEY")

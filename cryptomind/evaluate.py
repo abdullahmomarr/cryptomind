@@ -76,6 +76,7 @@ def replay(
     params: Params,
     *,
     use_memory: bool = True,
+    skips: list[str] | None = None,
 ) -> list[dict]:
     """Replay one pair chronologically, returning one record per decision.
 
@@ -83,6 +84,10 @@ def replay(
     calibrated), and how it actually turned out. The memory database is
     in-memory and private to this call, so a replay can never be polluted by a
     previous run and re-running is idempotent.
+
+    If `skips` is given, the reason string for each decision dropped because the
+    agent could not produce a parseable recommendation is appended to it, so the
+    caller can report how many live-LLM calls were unusable.
     """
     tf_hours = params.timeframe_hours()
     window_candles = max(1, round(params.window_hours / tf_hours))
@@ -126,7 +131,19 @@ def replay(
             else:
                 similar = []
 
-            rec = agent.recommend(snapshot, similar)
+            # A live LLM occasionally returns a reply the parser cannot turn into
+            # a decision (it narrates instead of emitting JSON, or a provider
+            # errors on one call). Over hundreds of sequential calls this is
+            # expected, so a single bad reply must skip only that decision — not
+            # abort the whole pair. The rule-based agent never raises here, so
+            # its runs are unaffected. Skips are counted and surfaced so the
+            # evaluation stays honest about how many decisions were dropped.
+            try:
+                rec = agent.recommend(snapshot, similar)
+            except (ValueError, RuntimeError) as exc:
+                if skips is not None:
+                    skips.append(str(exc))
+                continue
             if use_memory:
                 calibrated, explanation = memory.calibrate_confidence(
                     rec.confidence, similar, prior_strength=params.prior_strength
@@ -227,8 +244,18 @@ def evaluate_pair(
     )
     agent = agent or get_agent(params.engine)
 
-    full = replay(pair, candles, agent, params, use_memory=True)
+    skips: list[str] = []
+    full = replay(pair, candles, agent, params, use_memory=True, skips=skips)
     if not full:
+        # Distinguish "no candles" from "the LLM produced nothing parseable on any
+        # call" — the latter is the failure the report must not hide.
+        if skips:
+            return {
+                "pair": pair,
+                "error": f"no usable decisions: all {len(skips)} attempts were "
+                         f"unparseable (e.g. {skips[0][:120]})",
+                "n_skipped": len(skips),
+            }
         return {"pair": pair, "error": "not enough candles for a single decision"}
 
     split = int(len(full) * params.train_frac)
@@ -292,6 +319,7 @@ def evaluate_pair(
     return {
         "pair": pair,
         "n_total_decisions": len(full),
+        "n_skipped": len(skips),  # decisions dropped: agent gave no parseable reply
         "n_train": len(train),
         "n_test": len(test),
         "test_period_start": test[0]["timestamp"],

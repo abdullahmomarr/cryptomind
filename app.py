@@ -28,9 +28,45 @@ def get_market() -> MarketData:
     return MarketData()
 
 
-def llm_key_available() -> bool:
-    """True if either supported LLM backend has a key configured."""
-    return bool(config.get_gemini_key() or config.get_anthropic_key())
+def ENGINE_BY_LABEL(label: str) -> str:
+    """Map a radio label to the concrete engine name get_agent() expects.
+
+    OpenRouter maps to the specific "openrouter" engine, not the generic "llm"
+    alias — "llm" would prefer Groq/Gemini if their keys happened to be set, which
+    is not what the user picked.
+    """
+    if label.startswith("OpenRouter"):
+        return "openrouter"
+    if label.startswith("Gemini"):
+        return "gemini"
+    return "rule"
+
+
+def ENGINE_DISPLAY(engine: str) -> str:
+    """Human-readable name for a concrete engine."""
+    return {
+        "openrouter": "OpenRouter LLM",
+        "gemini": "Gemini LLM",
+        "rule": "Rule-based",
+    }.get(engine, engine)
+
+
+def llm_key_available(engine: str = "llm") -> bool:
+    """True if the key for the selected LLM backend is configured.
+
+    With no argument (or the generic "llm" alias) it is true if any supported LLM
+    backend has a key. Pass a specific engine to check just that backend's key,
+    so the UI can warn precisely (e.g. OpenRouter selected but no OPENROUTER_API_KEY).
+    """
+    if engine == "openrouter":
+        return bool(config.get_openrouter_key())
+    if engine == "gemini":
+        return bool(config.get_gemini_key())
+    return bool(
+        config.get_gemini_key()
+        or config.get_anthropic_key()
+        or config.get_openrouter_key()
+    )
 
 
 # --- Header -----------------------------------------------------------------
@@ -48,19 +84,27 @@ with st.sidebar:
 
     engine_label = st.radio(
         "Reasoning engine",
-        ["Rule-based (free, offline)", "Gemini LLM (free API key)"],
+        [
+            "Rule-based (free, offline)",
+            "Gemini LLM (free API key)",
+            "OpenRouter LLM (free API key)",
+        ],
         index=0,
-        help="Rule-based needs no key. Gemini uses GEMINI_API_KEY (free at aistudio.google.com).",
+        help="Rule-based needs no key. Gemini uses GEMINI_API_KEY "
+             "(free at aistudio.google.com). OpenRouter uses OPENROUTER_API_KEY "
+             "(free at openrouter.ai).",
     )
-    engine = "llm" if engine_label.startswith("Gemini") else "rule"
+    engine = ENGINE_BY_LABEL(engine_label)
 
-    if engine == "llm" and not llm_key_available():
+    if engine != "rule" and not llm_key_available(engine):
+        need = "OPENROUTER_API_KEY" if engine == "openrouter" else "GEMINI_API_KEY"
+        where = "openrouter.ai" if engine == "openrouter" else "aistudio.google.com"
         st.warning(
-            "No GEMINI_API_KEY set — LLM calls will fail. Get a free key at "
-            "aistudio.google.com and add it in Secrets, or use the rule-based engine."
+            f"No {need} set — LLM calls will fail. Get a free key at {where} and "
+            f"add it in Secrets, or use the rule-based engine."
         )
     else:
-        st.success(f"Engine ready: {'Gemini LLM' if engine == 'llm' else 'Rule-based'}")
+        st.success(f"Engine ready: {ENGINE_DISPLAY(engine)}")
 
     st.divider()
     stats = memory.connect()
@@ -160,14 +204,19 @@ with tab_seed:
     limit = sc3.slider("Decisions per pair", 10, 100, 60)
     seed_engine_label = st.radio(
         "Seeding engine",
-        ["Rule-based (fast, free)", "Gemini LLM (slower, one call per decision)"],
+        [
+            "Rule-based (fast, free)",
+            "Gemini LLM (slower, one call per decision)",
+            "OpenRouter LLM (slower, one call per decision)",
+        ],
         index=0, horizontal=True,
     )
-    seed_engine = "llm" if seed_engine_label.startswith("Gemini") else "rule"
-    if seed_engine == "llm":
+    seed_engine = ENGINE_BY_LABEL(seed_engine_label)
+    if seed_engine != "rule":
+        provider = ENGINE_DISPLAY(seed_engine)
         st.warning(
-            f"This makes up to ~{limit * len(seed_pairs)} Gemini API calls and is slow. "
-            f"Gemini's free tier is rate-limited, so rule-based is recommended for seeding."
+            f"This makes up to ~{limit * len(seed_pairs)} {provider} API calls and is "
+            f"slow. Free tiers are rate-limited, so rule-based is recommended for seeding."
         )
 
     if st.button("🌱 Seed memory now", type="primary", use_container_width=True):
