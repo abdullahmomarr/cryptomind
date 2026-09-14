@@ -89,13 +89,15 @@ GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 # -- OpenRouter (free tier) via its OpenAI-compatible endpoint --
 # OpenRouter fronts a rotating set of free models behind one OpenAI-compatible
-# endpoint. The default below was chosen by smoke-testing the free models on the
-# actual agent prompt: it returns clean JSON (no chain-of-thought leakage that
-# breaks the parser) in a few seconds per call, which is what a walk-forward
-# evaluation over hundreds of decisions needs. Override with OPENROUTER_MODEL.
+# endpoint. The default is an INSTRUCTION-TUNED model (Gemma), deliberately not a
+# reasoning model: reasoning models such as Nemotron intermittently "think out
+# loud" before answering, so the reply is prose the JSON parser cannot recover.
+# Gemma returns the JSON object directly. Override with OPENROUTER_MODEL (env or
+# Streamlit Secrets) — e.g. drop the ':free' suffix to use the paid endpoint and
+# escape the shared free-model daily cap.
 OPENROUTER_OPENAI_BASE_URL = "https://openrouter.ai/api/v1"
 OPENROUTER_MODEL = os.environ.get(
-    "OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free"
+    "OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free"
 )
 
 # --- LLM call handling --------------------------------------------------------
