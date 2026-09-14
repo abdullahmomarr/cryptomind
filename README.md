@@ -41,7 +41,7 @@ confident new call is pulled back toward that reality.
 | File | Responsibility |
 |------|----------------|
 | `cryptomind/data_layer.py` | ccxt OHLCV fetch (Binance public data) + pure-Python RSI and MA-crossover indicators → a *market snapshot*. |
-| `cryptomind/agent.py` | The reasoning layer behind a swappable `Agent` interface. `LLMAgent` = Claude; `RuleBasedAgent` = deterministic (free/offline, and the seam for a future Ollama backend). |
+| `cryptomind/agent.py` | The reasoning layer behind a swappable `Agent` interface. `OpenAICompatibleAgent` = free LLMs via OpenRouter (default) or Groq; `LLMAgent` = Claude (paid); `RuleBasedAgent` = deterministic (free/offline, and the seam for a future Ollama backend). |
 | `cryptomind/memory.py` | **The key feature.** SQLite with `recommendations` + `outcomes`, and the four loop functions: `log_recommendation`, `verify_outcomes`, `retrieve_similar`, `calibrate_confidence`. |
 | `cryptomind/loop.py` | The full live decision loop with demo-friendly output. |
 | `cryptomind/seed.py` | Backfills history from **real historical** prices and verifies each decision against the known subsequent price. |
