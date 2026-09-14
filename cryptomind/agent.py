@@ -335,7 +335,7 @@ class OpenAICompatibleAgent(Agent):
                     max_tokens=350,
                     messages=messages,
                 )
-            return resp.choices[0].message.content
+            return _content_from_response(resp)
 
         try:
             raw_text = cached_call(
@@ -436,6 +436,37 @@ def with_retry(call: "callable", label: str = "llm"):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+def _content_from_response(resp) -> str:
+    """Pull the message text out of a chat-completions response, defensively.
+
+    An OpenAI-compatible endpoint does not always return the happy-path shape.
+    OpenRouter in particular can return a 200 whose body carries an `error`
+    object and no `choices`, or a `choices` entry whose `message.content` is
+    null (an empty or moderation-filtered completion). Indexing `choices[0]`
+    blindly then fails with a cryptic "'NoneType' object is not subscriptable".
+
+    Turn each of those into a clear, catchable error (or an empty string the
+    JSON parser will reject with a real message) instead.
+    """
+    # Some SDKs expose a provider error on the response object itself.
+    err = getattr(resp, "error", None)
+    if err:
+        message = err.get("message") if isinstance(err, dict) else str(err)
+        raise RuntimeError(f"provider returned an error: {message}")
+
+    choices = getattr(resp, "choices", None)
+    if not choices:
+        raise RuntimeError(
+            "response contained no choices "
+            f"(provider returned: {str(resp)[:200]})"
+        )
+
+    content = choices[0].message.content
+    # A null/absent completion is not an exception, but it carries no decision;
+    # return "" so _parse_json_response raises its own descriptive error.
+    return content or ""
+
+
 def _format_history_for_prompt(similar_past: list[dict]) -> str:
     """Render retrieved memory compactly for the LLM prompt."""
     if not similar_past:
