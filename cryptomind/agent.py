@@ -308,22 +308,26 @@ class OpenAICompatibleAgent(Agent):
             history=_format_history_for_prompt(similar_past),
         )
 
-        # A system message plus a JSON response-format both push the model to
-        # emit only the JSON object. Some free models otherwise "think out loud"
-        # before (or instead of) answering, which the parser cannot recover and
-        # which would drop that decision from an evaluation. The system message
-        # works with every provider; response_format is a best-effort extra that
-        # some providers reject, so we retry without it if the API refuses.
+        # A JSON-only system instruction plus response_format push the model to
+        # emit only the JSON object; some free models otherwise "think out loud"
+        # before (or instead of) answering and the reply carries no recoverable
+        # decision. response_format is best-effort — some providers reject it, so
+        # we retry without it. (An assistant-turn "{" prefill was tried and
+        # removed: this provider echoes the prefill back into the content and
+        # corrupts the object, which made parsing worse, not better.)
         messages = [
             {"role": "system", "content": _JSON_ONLY_SYSTEM},
             {"role": "user", "content": prompt},
         ]
 
         def call() -> str:
+            # A larger token budget than the object needs, so a little prepended
+            # reasoning does not truncate the JSON mid-object (350 was cutting
+            # replies off before any closing brace).
             try:
                 resp = self._client.chat.completions.create(
                     model=self._model,
-                    max_tokens=350,
+                    max_tokens=512,
                     messages=messages,
                     response_format={"type": "json_object"},
                 )
@@ -332,7 +336,7 @@ class OpenAICompatibleAgent(Agent):
                 # the plain call, still with the JSON-only system instruction.
                 resp = self._client.chat.completions.create(
                     model=self._model,
-                    max_tokens=350,
+                    max_tokens=512,
                     messages=messages,
                 )
             return _content_from_response(resp)
