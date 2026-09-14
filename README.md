@@ -71,10 +71,10 @@ pip install -r requirements.txt
 
 # 3. (Only if you want an LLM reasoning engine) provide an API key.
 #    The rule-based engine and all memory/data code need NO key.
-#    Recommended free option: Google Gemini (https://aistudio.google.com).
+#    Recommended free option: OpenRouter (https://openrouter.ai/settings/keys).
 cp .env.example .env      # then edit .env, OR just export it:
-export GEMINI_API_KEY="your-free-gemini-key"     # macOS / Linux
-$env:GEMINI_API_KEY = "your-free-gemini-key"     # Windows PowerShell
+export OPENROUTER_API_KEY="your-free-openrouter-key"     # macOS / Linux
+$env:OPENROUTER_API_KEY = "your-free-openrouter-key"     # Windows PowerShell
 # (Anthropic Claude is also supported via ANTHROPIC_API_KEY — paid.)
 ```
 
@@ -117,8 +117,8 @@ serverless hosts like Vercel.
 2. On share.streamlit.io: **Create app** → select the repo → branch `main` →
    main file `app.py`.
 3. **No API key is required** — the app runs on the rule-based engine by default.
-   For the optional Gemini LLM engine, add a free key in *Secrets*:
-   `GEMINI_API_KEY = "..."` (or `ANTHROPIC_API_KEY` for the paid Claude engine).
+   For the optional OpenRouter LLM engine, add a free key in *Secrets*:
+   `OPENROUTER_API_KEY = "..."` (or `ANTHROPIC_API_KEY` for the paid Claude engine).
 4. **Set the exchange** so live data works from the cloud. Binance is geo-blocked
    on most cloud hosts, so add an environment variable / secret:
    `CRYPTOMIND_EXCHANGE = "kraken"` (or `coinbase`). Locally you can leave it
@@ -137,7 +137,7 @@ against the **known** subsequent price. Rows are tagged `REAL-HISTORICAL`.
 python run.py seed
 
 # Or use a real LLM for each historical decision (slower, rate-limited on free tiers):
-python run.py seed --engine gemini --limit 20      # free Gemini; 'claude' also works
+python run.py seed --engine openrouter --limit 20      # free OpenRouter; 'claude' also works
 
 # Options: --pairs BTC/USDT ETH/USDT  --timeframe 1h  --days 30  --limit 60  --window-hours 4
 ```

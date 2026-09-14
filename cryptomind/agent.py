@@ -227,16 +227,16 @@ class LLMAgent(Agent):
 
 
 # ---------------------------------------------------------------------------
-# OpenAI-compatible agent (Gemini free tier, Groq, OpenRouter, local Ollama…)
+# OpenAI-compatible agent (Groq, OpenRouter, local Ollama…)
 # ---------------------------------------------------------------------------
 class OpenAICompatibleAgent(Agent):
     """Agent backed by any OpenAI-compatible chat endpoint.
 
-    Google Gemini exposes an OpenAI-compatible API, so we can reach its free
-    tier through the standard `openai` SDK just by pointing `base_url` at it.
-    The same class works unchanged with Groq, OpenRouter, or a local Ollama
-    server — this is the project's "swap the LLM" seam, and the free,
-    cloud-deployable alternative to the Claude backend.
+    Groq and OpenRouter both expose OpenAI-compatible APIs, so we can reach their
+    free tiers through the standard `openai` SDK just by pointing `base_url` at
+    them. The same class works unchanged with a local Ollama server — this is the
+    project's "swap the LLM" seam, and the free, cloud-deployable alternative to
+    the Claude backend.
     """
 
     name = "openai-compatible"
@@ -249,7 +249,7 @@ class OpenAICompatibleAgent(Agent):
         api_key: str | None,
         model: str,
         label: str = "llm",
-        key_hint: str = "GEMINI_API_KEY (free at https://aistudio.google.com)",
+        key_hint: str = "OPENROUTER_API_KEY (free at https://openrouter.ai/settings/keys)",
         use_cache: bool = True,
     ):
         if not api_key:
@@ -264,18 +264,6 @@ class OpenAICompatibleAgent(Agent):
         self._model = model
         self._use_cache = use_cache
         self.name = label
-
-    @classmethod
-    def for_gemini(cls, use_cache: bool = True) -> "OpenAICompatibleAgent":
-        """Build an agent for Google Gemini's free OpenAI-compatible endpoint."""
-        return cls(
-            base_url=config.GEMINI_OPENAI_BASE_URL,
-            api_key=config.get_gemini_key(),
-            model=config.GEMINI_MODEL,
-            label="gemini",
-            key_hint="GEMINI_API_KEY (free at https://aistudio.google.com)",
-            use_cache=use_cache,
-        )
 
     @classmethod
     def for_groq(cls, use_cache: bool = True) -> "OpenAICompatibleAgent":
@@ -567,7 +555,6 @@ def get_agent(engine: str) -> Agent:
 
     'rule'           -> RuleBasedAgent (no key, works everywhere)
     'groq'           -> Llama via Groq's OpenAI-compatible endpoint (free key)
-    'gemini'         -> Gemini via OpenAI-compatible endpoint (free key)
     'openrouter'     -> free model via OpenRouter's OpenAI-compatible endpoint (free key)
     'claude'         -> Claude (Anthropic, paid key)
     'llm'            -> auto: whichever free key is set, else Claude
@@ -577,8 +564,6 @@ def get_agent(engine: str) -> Agent:
         return RuleBasedAgent()
     if engine in ("groq", "llama"):
         return OpenAICompatibleAgent.for_groq()
-    if engine in ("gemini", "google"):
-        return OpenAICompatibleAgent.for_gemini()
     if engine in ("openrouter", "or"):
         return OpenAICompatibleAgent.for_openrouter()
     if engine in ("claude", "anthropic"):
@@ -586,12 +571,10 @@ def get_agent(engine: str) -> Agent:
     if engine == "llm":  # convenience alias: prefer whichever free key is present
         if config.get_groq_key():
             return OpenAICompatibleAgent.for_groq()
-        if config.get_gemini_key():
-            return OpenAICompatibleAgent.for_gemini()
         if config.get_openrouter_key():
             return OpenAICompatibleAgent.for_openrouter()
         return LLMAgent()
     raise ValueError(
-        f"Unknown engine '{engine}', expected 'rule', 'groq', 'gemini', "
+        f"Unknown engine '{engine}', expected 'rule', 'groq', "
         f"'openrouter' or 'claude'"
     )
