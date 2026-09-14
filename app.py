@@ -32,13 +32,11 @@ def ENGINE_BY_LABEL(label: str) -> str:
     """Map a radio label to the concrete engine name get_agent() expects.
 
     OpenRouter maps to the specific "openrouter" engine, not the generic "llm"
-    alias — "llm" would prefer Groq/Gemini if their keys happened to be set, which
-    is not what the user picked.
+    alias — "llm" would prefer Groq if its key happened to be set, which is not
+    what the user picked.
     """
     if label.startswith("OpenRouter"):
         return "openrouter"
-    if label.startswith("Gemini"):
-        return "gemini"
     return "rule"
 
 
@@ -46,7 +44,6 @@ def ENGINE_DISPLAY(engine: str) -> str:
     """Human-readable name for a concrete engine."""
     return {
         "openrouter": "OpenRouter LLM",
-        "gemini": "Gemini LLM",
         "rule": "Rule-based",
     }.get(engine, engine)
 
@@ -60,11 +57,8 @@ def llm_key_available(engine: str = "llm") -> bool:
     """
     if engine == "openrouter":
         return bool(config.get_openrouter_key())
-    if engine == "gemini":
-        return bool(config.get_gemini_key())
     return bool(
-        config.get_gemini_key()
-        or config.get_anthropic_key()
+        config.get_anthropic_key()
         or config.get_openrouter_key()
     )
 
@@ -86,22 +80,18 @@ with st.sidebar:
         "Reasoning engine",
         [
             "Rule-based (free, offline)",
-            "Gemini LLM (free API key)",
             "OpenRouter LLM (free API key)",
         ],
         index=0,
-        help="Rule-based needs no key. Gemini uses GEMINI_API_KEY "
-             "(free at aistudio.google.com). OpenRouter uses OPENROUTER_API_KEY "
+        help="Rule-based needs no key. OpenRouter uses OPENROUTER_API_KEY "
              "(free at openrouter.ai).",
     )
     engine = ENGINE_BY_LABEL(engine_label)
 
     if engine != "rule" and not llm_key_available(engine):
-        need = "OPENROUTER_API_KEY" if engine == "openrouter" else "GEMINI_API_KEY"
-        where = "openrouter.ai" if engine == "openrouter" else "aistudio.google.com"
         st.warning(
-            f"No {need} set — LLM calls will fail. Get a free key at {where} and "
-            f"add it in Secrets, or use the rule-based engine."
+            "No OPENROUTER_API_KEY set — LLM calls will fail. Get a free key at "
+            "openrouter.ai and add it in Secrets, or use the rule-based engine."
         )
     else:
         st.success(f"Engine ready: {ENGINE_DISPLAY(engine)}")
@@ -206,7 +196,6 @@ with tab_seed:
         "Seeding engine",
         [
             "Rule-based (fast, free)",
-            "Gemini LLM (slower, one call per decision)",
             "OpenRouter LLM (slower, one call per decision)",
         ],
         index=0, horizontal=True,

@@ -65,20 +65,17 @@ RETRIEVAL_K = 3
 CALIBRATION_PRIOR_STRENGTH = 2
 
 # --- Agent / LLM -------------------------------------------------------------
-# The reasoning layer is swappable (see cryptomind/agent.py). Two LLM backends
+# The reasoning layer is swappable (see cryptomind/agent.py). Several LLM backends
 # are supported out of the box, plus the always-available rule-based engine:
-#   * Claude (Anthropic)            -> needs ANTHROPIC_API_KEY (paid)
-#   * Gemini via OpenAI-compatible  -> needs GEMINI_API_KEY (free tier)
-# The Gemini path uses an OpenAI-compatible client, so the same agent class also
-# works with Groq / OpenRouter / a local Ollama server by changing these values.
+#   * Claude (Anthropic)                -> needs ANTHROPIC_API_KEY (paid)
+#   * OpenRouter via OpenAI-compatible  -> needs OPENROUTER_API_KEY (free tier)
+#   * Groq via OpenAI-compatible        -> needs GROQ_API_KEY (free tier)
+# The OpenAI-compatible client means the same agent class also works with a local
+# Ollama server by changing these values.
 
 # -- Claude (Anthropic) --
 CLAUDE_MODEL = "claude-sonnet-4-6"
 ANTHROPIC_API_KEY_ENV = "ANTHROPIC_API_KEY"
-
-# -- Gemini (Google AI Studio, free tier) via its OpenAI-compatible endpoint --
-GEMINI_OPENAI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 
 # -- Groq (free tier) via its OpenAI-compatible endpoint --
 # Groq serves open-weight models at high speed with a usable free quota, which
@@ -116,11 +113,6 @@ LLM_CACHE_DIR = PROJECT_ROOT / "data" / "llm_cache"
 def get_anthropic_key() -> str | None:
     """Return the Anthropic API key from the environment, or None if unset."""
     return os.environ.get(ANTHROPIC_API_KEY_ENV)
-
-
-def get_gemini_key() -> str | None:
-    """Return the Google/Gemini API key from the environment, or None if unset."""
-    return os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
 
 
 def get_groq_key() -> str | None:
