@@ -21,7 +21,14 @@ cryptomind.db
 .vscode/
 .idea/
 
-# NOTE: results/ and data/candles/ are deliberately NOT ignored. The cached
-# candles are the exact prices every reported number was computed from, and
-# results/ holds the metrics and figures the report cites — both need to be in
-# the repository for the evaluation to be reproducible by a marker.
+# NOTE: results/, data/candles/ and data/llm_cache/ are deliberately NOT
+# ignored. The cached candles are the exact prices every reported number was
+# computed from, results/ holds the metrics and figures the report cites, and
+# the LLM cache holds the exact model replies behind the language-model
+# evaluation. A language model is not deterministic, so without those cached
+# replies its results could never be reproduced by anyone, with or without an
+# API key. All three need to be in the repository for the evaluation to be
+# reproducible by a marker.
+#
+# The cache stores prompts and replies only. No API key is written to disk:
+# keys are read from the environment and never persisted.

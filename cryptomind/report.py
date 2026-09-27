@@ -242,7 +242,7 @@ def _reliability_figure(plt, pooled: dict, fig_dir: Path) -> Path:
                     label=ARM_LABELS.get(arm, arm))
 
     ax.set_ylabel("Observed accuracy (%)")
-    ax.set_title("Reliability diagram — is the confidence honest?")
+    ax.set_title("Reliability diagram: is the confidence honest?")
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
     ax.grid(alpha=0.3)
@@ -309,7 +309,7 @@ def _confidence_shift_figure(plt, result: dict, fig_dir: Path):
 
     ax2.hist(shifts, bins=25, color="#55A868")
     ax2.axvline(0, color="k", lw=1)
-    ax2.set_xlabel("Calibrated − raw (percentage points)")
+    ax2.set_xlabel("Calibrated minus raw (percentage points)")
     ax2.set_ylabel("Decisions")
     ax2.set_title("How far memory moved each call")
     ax2.grid(alpha=0.3)
