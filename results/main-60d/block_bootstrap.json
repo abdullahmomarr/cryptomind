@@ -1,0 +1,31 @@
+{
+  "difference": -0.03443844537815126,
+  "n": 1428,
+  "n_resamples": 2000,
+  "seed": 0,
+  "blocks": [
+    {
+      "block_length_hours": 1,
+      "ci_low": -0.0435758403361345,
+      "ci_high": -0.024770728291316515,
+      "significant": true
+    },
+    {
+      "block_length_hours": 4,
+      "ci_low": -0.04518879551820729,
+      "ci_high": -0.02218718487394956,
+      "significant": true
+    },
+    {
+      "block_length_hours": 24,
+      "ci_low": -0.04616708333333334,
+      "ci_high": -0.023444166666666665,
+      "significant": true
+    }
+  ],
+  "lag1_autocorrelation": {
+    "BTC/USDT": 0.5690157339531557,
+    "ETH/USDT": 0.49304631053850007,
+    "SOL/USDT": 0.488797442440551
+  }
+}
